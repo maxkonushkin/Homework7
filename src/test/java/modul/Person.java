@@ -1,23 +1,35 @@
 package modul;
 
-public class User
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Person
 {
-    private String name;
-    private int age;
+    private String value;
+    private String unrestricted_value;
+    private PersonInner data;
 
-    public String getName() {
-        return name;
+    public String getValue() {
+        return value;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setValue(String value) {
+        this.value = value;
     }
 
-    public int getAge() {
-        return age;
+    public String getUnrestricted_value() {
+        return unrestricted_value;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setUnrestricted_value(String unrestricted_value) {
+        this.unrestricted_value = unrestricted_value;
+    }
+
+    public PersonInner getData() {
+        return data;
+    }
+
+    public void setData(PersonInner data) {
+        this.data = data;
     }
 }

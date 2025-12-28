@@ -1,0 +1,10 @@
+{
+  "value": "Иванов Иван",
+  "unrestricted_value": "Иванов Иван",
+  "data": {
+    "surname": "Иванов",
+    "name": "Иван",
+    "patronymic": null,
+    "gender": "MALE"
+  }
+}

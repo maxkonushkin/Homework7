@@ -1,9 +1,12 @@
 package ru.konushkin;
 
+import com.codeborne.pdftest.PDF;
+import com.codeborne.xlstest.XLS;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
-import modul.Glossary;
+import com.opencsv.CSVReader;
+import modul.Person;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +14,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -20,55 +24,69 @@ public class FilesTest {
     private static final Gson gson = new Gson();
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    @Test
-    void zipFileParsingTest() throws Exception {
-        try (ZipInputStream zis = new ZipInputStream(
-                cl.getResourceAsStream("zip/sample-zip-file.zip")
-        )) {
-            ZipEntry entry;
-
-            while ((entry = zis.getNextEntry()) != null) {
-                System.out.println(entry.getName());
-            }
-        }
-    }
 
     @Test
-    void zipTest() throws Exception {
-        ZipFile zf = new ZipFile(new File("src/test/resources/zip/sample-zip-file.zip"));
-        ZipInputStream is = new ZipInputStream(cl.getResourceAsStream("zip/sample-zip-file.zip"));
+    void zipTestXlsx() throws Exception {
+        ZipFile zf = new ZipFile(new File("src/test/resources/zip/zip-file.zip"));
+        ZipInputStream is = new ZipInputStream(cl.getResourceAsStream("zip/zip-file.zip"));
         ZipEntry entry;
         while((entry = is.getNextEntry()) != null) {
             org.assertj.core.api.Assertions.assertThat(entry.getName()).isEqualTo("1.xlsx");
             try (InputStream inputStream = zf.getInputStream(entry)) {
-                // проверки
+                XLS xls = new XLS(inputStream);
+                String actualValue = xls.excel.getSheetAt(0).getRow(0).getCell(0).getStringCellValue();
+                Assertions.assertTrue(actualValue.contains("Килограмм картошки"));
 
             }
         }
     }
 
     @Test
-    void jsonFileParsingImprovedTest1() throws Exception {
-        try (Reader reader = new InputStreamReader(
-                cl.getResourceAsStream("glossary.json")
-        )) {
-            Glossary actual = gson.fromJson(reader, Glossary.class);
-
-            Assertions.assertEquals("example glossary", actual.getTitle());
-            Assertions.assertEquals(234234, actual.getID());
+    void zipTestPdf() throws Exception {
+        ZipFile zf = new ZipFile(new File("src/test/resources/zip/zip-file2.zip"));
+        ZipInputStream is = new ZipInputStream(cl.getResourceAsStream("zip/zip-file2.zip"));
+        ZipEntry entry;
+        while((entry = is.getNextEntry()) != null) {
+            org.assertj.core.api.Assertions.assertThat(entry.getName()).isEqualTo("check.pdf");
+            try (InputStream inputStream = zf.getInputStream(entry)) {
+                PDF pdf = new PDF(inputStream);
+                Assertions.assertEquals(1,pdf.numberOfPages);
+            }
         }
     }
 
     @Test
-    void jsonFileParsingImprovedTest() throws Exception {
+    void zipTestCsv() throws Exception {
+        ZipFile zf = new ZipFile(new File("src/test/resources/zip/zip-file3.zip"));
+        ZipInputStream is = new ZipInputStream(cl.getResourceAsStream("zip/zip-file3.zip"));
+        ZipEntry entry;
+        while ((entry = is.getNextEntry()) != null) {
+            org.assertj.core.api.Assertions.assertThat(entry.getName()).isEqualTo("1.csv");
+            try (InputStream inputStream = zf.getInputStream(entry)) {
+                     CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream));
+
+                    List<String[]> data = csvReader.readAll();
+                    Assertions.assertEquals(2, data.size());
+                    Assertions.assertArrayEquals(
+                            new String[] {"Selenide", "https://selenide.org"},
+                            data.get(0)
+                    );
+                    Assertions.assertArrayEquals(
+                            new String[] {"JUnit 5","https://junit.org"},
+                            data.get(1)
+                    );
+            }
+        }
+    }
+
+    @Test
+    void jsonFileParsingImprovedTestJackson2() throws Exception {
         try (Reader reader = new InputStreamReader(
-                cl.getResourceAsStream("glossary.json")
+                cl.getResourceAsStream("ivan.json")
         )) {
-            Glossary actual = mapper.readValue(reader, Glossary.class);
-            Assertions.assertEquals("example glossary", actual.getTitle());
-            Assertions.assertEquals(234234, actual.getID());
-            Assertions.assertEquals("SGML", actual.getGlossary().getSortAs());
-            Assertions.assertEquals("Standard Generalized Markup Language", actual.getGlossary().getGlossTerm());
+            Person actual = mapper.readValue(reader, Person.class);
+            Assertions.assertEquals("Иванов Иван", actual.getValue());
+            Assertions.assertEquals("MALE", actual.getData().getGender());
         }
     }
 }
