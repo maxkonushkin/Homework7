@@ -3,13 +3,10 @@ package ru.konushkin;
 import com.codeborne.pdftest.PDF;
 import com.codeborne.xlstest.XLS;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-
 import com.opencsv.CSVReader;
-import modul.Person;
+import models.Person;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,7 +18,6 @@ import java.util.zip.ZipInputStream;
 
 public class FilesTest {
     private ClassLoader cl = FilesTest.class.getClassLoader();
-    private static final Gson gson = new Gson();
     private static final ObjectMapper mapper = new ObjectMapper();
 
 
