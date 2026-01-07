@@ -39,11 +39,11 @@ public class FilesTest {
 
     @Test
     void zipTestPdf() throws Exception {
-        ZipFile zf = new ZipFile(new File("src/test/resources/zip/zip-file2.zip"));
-        ZipInputStream is = new ZipInputStream(cl.getResourceAsStream("zip/zip-file2.zip"));
+        ZipFile zf = new ZipFile(new File("src/test/resources/zip/zip-file4.zip"));
+        ZipInputStream is = new ZipInputStream(cl.getResourceAsStream("zip/zip-file4.zip"));
         ZipEntry entry;
         while((entry = is.getNextEntry()) != null) {
-            org.assertj.core.api.Assertions.assertThat(entry.getName()).isEqualTo("check.pdf");
+            org.assertj.core.api.Assertions.assertThat(entry.getName()).isEqualTo("1.xlsx");
             try (InputStream inputStream = zf.getInputStream(entry)) {
                 PDF pdf = new PDF(inputStream);
                 Assertions.assertEquals(1,pdf.numberOfPages);
