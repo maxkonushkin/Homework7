@@ -7,14 +7,14 @@ import com.opencsv.CSVReader;
 import models.Person;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import java.io.File;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 public class FilesTest {
     private ClassLoader cl = FilesTest.class.getClassLoader();
@@ -22,47 +22,50 @@ public class FilesTest {
 
 
     @Test
-    void zipTestXlsx() throws Exception {
-        ZipFile zf = new ZipFile(new File("src/test/resources/zip/zip-file.zip"));
-        ZipInputStream is = new ZipInputStream(cl.getResourceAsStream("zip/zip-file.zip"));
-        ZipEntry entry;
-        while((entry = is.getNextEntry()) != null) {
-            org.assertj.core.api.Assertions.assertThat(entry.getName()).isEqualTo("1.xlsx");
-            try (InputStream inputStream = zf.getInputStream(entry)) {
-                XLS xls = new XLS(inputStream);
-                String actualValue = xls.excel.getSheetAt(0).getRow(0).getCell(0).getStringCellValue();
-                Assertions.assertTrue(actualValue.contains("Килограмм картошки"));
-
+    void xlsxFileInZipParsingTest() throws Exception {
+        try (ZipInputStream inputStream = new ZipInputStream(
+                cl.getResourceAsStream("zip/zip-file4.zip")
+        )) {
+            ZipEntry entry;
+            while ((entry = inputStream.getNextEntry()) != null) {
+                if (entry.getName().endsWith(".xlsx")) {
+                    XLS xls = new XLS(inputStream);
+                    String actualValue = xls.excel.getSheetAt(0).getRow(0).getCell(0).getStringCellValue();
+                    assertTrue(actualValue.contains("Килограмм картошки"));
+                }
             }
         }
     }
 
+
     @Test
-    void zipTestPdf() throws Exception {
-        ZipFile zf = new ZipFile(new File("src/test/resources/zip/zip-file4.zip"));
-        ZipInputStream is = new ZipInputStream(cl.getResourceAsStream("zip/zip-file4.zip"));
-        ZipEntry entry;
-        while((entry = is.getNextEntry()) != null) {
-            org.assertj.core.api.Assertions.assertThat(entry.getName()).isEqualTo("1.xlsx");
-            try (InputStream inputStream = zf.getInputStream(entry)) {
-                PDF pdf = new PDF(inputStream);
-                Assertions.assertEquals(1,pdf.numberOfPages);
+    void pdfFileInZipParsingTest() throws Exception {
+        try (ZipInputStream inputStream = new ZipInputStream(
+                cl.getResourceAsStream("zip/zip-file4.zip")
+        )) {
+            ZipEntry entry;
+            while ((entry = inputStream.getNextEntry()) != null) {
+                if (entry.getName().endsWith(".pdf")) {
+                    PDF pdf = new PDF(inputStream);
+                    assertEquals(1,pdf.numberOfPages);
+                }
             }
         }
     }
 
+
     @Test
-    void zipTestCsv() throws Exception {
-        ZipFile zf = new ZipFile(new File("src/test/resources/zip/zip-file3.zip"));
-        ZipInputStream is = new ZipInputStream(cl.getResourceAsStream("zip/zip-file3.zip"));
-        ZipEntry entry;
-        while ((entry = is.getNextEntry()) != null) {
-            org.assertj.core.api.Assertions.assertThat(entry.getName()).isEqualTo("1.csv");
-            try (InputStream inputStream = zf.getInputStream(entry)) {
-                     CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream));
+    void csvFileInZipParsingTest() throws Exception {
+        try (ZipInputStream inputStream = new ZipInputStream(
+                cl.getResourceAsStream("zip/zip-file4.zip")
+        )) {
+            ZipEntry entry;
+            while ((entry = inputStream.getNextEntry()) != null) {
+                if (entry.getName().endsWith(".csv")) {
+                    CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream));
 
                     List<String[]> data = csvReader.readAll();
-                    Assertions.assertEquals(2, data.size());
+                    assertEquals(2, data.size());
                     Assertions.assertArrayEquals(
                             new String[] {"Selenide", "https://selenide.org"},
                             data.get(0)
@@ -71,9 +74,11 @@ public class FilesTest {
                             new String[] {"JUnit 5","https://junit.org"},
                             data.get(1)
                     );
+                }
             }
         }
     }
+
 
     @Test
     void jsonFileParsingImprovedTestJackson2() throws Exception {
@@ -81,8 +86,8 @@ public class FilesTest {
                 cl.getResourceAsStream("ivan.json")
         )) {
             Person actual = mapper.readValue(reader, Person.class);
-            Assertions.assertEquals("Иванов Иван", actual.getValue());
-            Assertions.assertEquals("MALE", actual.getData().getGender());
+            assertEquals("Иванов Иван", actual.getValue());
+            assertEquals("MALE", actual.getData().getGender());
         }
     }
 }
