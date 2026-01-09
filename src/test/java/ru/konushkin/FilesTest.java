@@ -27,13 +27,17 @@ public class FilesTest {
                 cl.getResourceAsStream("zip/zip-file4.zip")
         )) {
             ZipEntry entry;
+            String i = "1.xlsx";
+            boolean file = false;
             while ((entry = inputStream.getNextEntry()) != null) {
-                if (entry.getName().endsWith(".xlsx")) {
+                if (entry.getName().equals(i)) {
+                    file = true;
                     XLS xls = new XLS(inputStream);
                     String actualValue = xls.excel.getSheetAt(0).getRow(0).getCell(0).getStringCellValue();
                     assertTrue(actualValue.contains("Килограмм картошки"));
                 }
             }
+            assertTrue(file, i + " отсутствует в архиве");
         }
     }
 
@@ -44,12 +48,16 @@ public class FilesTest {
                 cl.getResourceAsStream("zip/zip-file4.zip")
         )) {
             ZipEntry entry;
+            String i = "check.pdf";
+            boolean file = false;
             while ((entry = inputStream.getNextEntry()) != null) {
-                if (entry.getName().endsWith(".pdf")) {
+                if (entry.getName().equals(i)) {
+                    file = true;
                     PDF pdf = new PDF(inputStream);
                     assertEquals(1,pdf.numberOfPages);
                 }
             }
+            assertTrue(file, i + " отсутствует в архиве");
         }
     }
 
@@ -60,8 +68,11 @@ public class FilesTest {
                 cl.getResourceAsStream("zip/zip-file4.zip")
         )) {
             ZipEntry entry;
+            String i = "1.csv";
+            boolean file = false;
             while ((entry = inputStream.getNextEntry()) != null) {
-                if (entry.getName().endsWith(".csv")) {
+                if (entry.getName().endsWith(i)) {
+                    file = true;
                     CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream));
 
                     List<String[]> data = csvReader.readAll();
@@ -76,6 +87,7 @@ public class FilesTest {
                     );
                 }
             }
+            assertTrue(file, i + " отсутствует в архиве");
         }
     }
 
